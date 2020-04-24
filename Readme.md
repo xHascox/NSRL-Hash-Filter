@@ -29,4 +29,4 @@ Click the left Button to export to a .txt file without a header ("md5") or the r
 
 ### Tested Python Verison:
 
-#### 3.5
+* 3.5
