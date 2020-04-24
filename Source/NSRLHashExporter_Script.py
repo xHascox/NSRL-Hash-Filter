@@ -1,3 +1,5 @@
+#Code: Marco (Cyber-RS)
+
 #python -m pip install pycdlib
 #https://github.com/clalancette/pycdlib
 #For extracting iso files
@@ -143,7 +145,8 @@ def extract(isofile, tmpfolder):
     #extract iso to tmpfolder
     # global isofile, tmpfolder
     print("extract")
-    os.system("python pycdlib-extract-files.py \""+isofile+"\" -extract-to \""+tmpfolder+"\"")
+    #os.system("python pycdlib-extract-files.py \""+isofile+"\" -extract-to \""+tmpfolder+"\"")
+    os.system("pycdlib-extract-files.exe \""+isofile+"\" -extract-to \""+tmpfolder+"\"")
 
 def handle_iso():
     '''
@@ -155,7 +158,7 @@ def handle_iso():
     root.update_idletasks()
     root.update()
     global tmpfolder
-    tmpfolder=str(int(time.time()))
+    tmpfolder='/'+str(int(time.time()))
 
     #Prompt user for Iso NSRL File
     #global isofile
@@ -237,7 +240,7 @@ def minion(pq, pl, i, D, keywordslist):
        
             if not line[0]:
                 break
-            values = [line[1], line[3][1:-1], line[5], line[6][1:-1]]
+            values = [line[1], line[3], line[5], line[6]]
             '''
             values: 0=md5, 1=name, 2=prodcode, 3=oscode
             translations:
@@ -268,7 +271,13 @@ def minion(pq, pl, i, D, keywordslist):
             #print("keywordsL:", keywordslist)
             #sample = [prodname, mfgname, prodtype, osname, md5]
             dl=[]
-            if sample[4] in keywordslist[0] or keywordslist[0]==[""]:
+            #print(sample[4][sample[4].rfind("."):], "===", keywordslist[0])
+            if sample[4].find("exe")>=0:
+                print(str(sample[4][sample[4].rfind("."):] in keywordslist[0])+" : "+sample[4])
+            if sample[4].find("rrinstaller.exe")>=0:
+                print("\n"*30)
+                print(str(sample[4][sample[4].rfind("."):] in keywordslist[0])+" : "+sample[4])
+            if sample[4][sample[4].rfind("."):] in keywordslist[0] or keywordslist[0]==[""]:
                 if sample[0] in keywordslist[4] or keywordslist[4]==[""]:
                     dl.append(True)
                     if sample[1] in keywordslist[1] or keywordslist[1]==[""]:
@@ -277,7 +286,7 @@ def minion(pq, pl, i, D, keywordslist):
                             dl.append(True)
                             if sample[3] in keywordslist[2] or keywordslist[2]==[""]:
                                 dl.append(True)
-                                print("little success", sample)
+                                #print("little success", sample)
                                 #append md5 to process list
                                 pl.append(sample.pop())
                         elif sample[2].find(",")>=0:# Handle multiple Application Type (sep by comma)
@@ -323,6 +332,8 @@ def export(filters, tmpfolder, D):
             keywordslist.append([""])
     #keywordslist=[['.exe', '.jpg'], [Hersteller strings], [OS], [Type], [ProdName]] can be ['']
     
+
+
     #unzip the huge hash file
     with zipfile.ZipFile(tmpfolder+"/NSRLFile.txt.zip", "r") as zip_ref:
         zip_ref.extractall(tmpfolder)
@@ -413,8 +424,13 @@ def list_to_file(data, dest, header=True):
 
 def finalexport1():
     saveas = pusavefile()
+    if saveas == "":#user clicked cancel on dialog
+        return
     global tmpfolder
     global D
+    temps = StringVar()
+    temps.set(comboboxes[1].get("1.0", "end-1c"))
+    comboinputs[1]=temps
     data = export(comboinputs[1:], tmpfolder, D)
 
     if list_to_file(data, saveas):
@@ -427,9 +443,14 @@ def finalexport1():
 
 def finalexport2():
     saveas = pusavefile()
+    if saveas == "":#user clicked cancel on dialog
+        return
     #Nuix NO MD5 HEADER
     global tmpfolder
     global D
+    temps = StringVar()
+    temps.set(comboboxes[1].get("1.0", "end-1c"))
+    comboinputs[1]=temps
     data = export(comboinputs[1:], tmpfolder, D)
 
     if not list_to_file(data, saveas, False):
@@ -845,23 +866,49 @@ if __name__ == '__main__':
     texts = [".iso File:", "File Extension:", "Hersteller:", "OS:", "Produkt-Typ:", "Produkt:"]
     comboinputs = []
     #comboplaceholder = ["nsrl.iso", '".exe",".jpg"', '"Microsoft", "Apple"', '"Windows"', '"Antivirus"', '"WindowsDefender"']
-    comboplaceholder = ["", '', '', '', '', '']
+    comboplaceholder = ["RDS_modern.iso", '', '', '', '', '']
     selections=[]
     comboboxes=[]
     #MAKE ROWS
     for i in range(nrows):
         #ROW
         rows.append(Frame(root))
-        rows[i].pack(side=TOP, fill=X, padx=5, pady=5)
+        if i!=1:
+            if i==0:
+                rows[i].pack(side=TOP, fill=X, padx=5, pady=25)
+            else:
+                rows[i].pack(side=TOP, fill=X, padx=5, pady=5)
         #DESCR
         textlabels.append(Label(rows[i], text=texts[i], font=("Helvetica", 12), anchor=W, justify=LEFT, width=labelwidth))
-        textlabels[i].pack(side=LEFT, padx=10, pady=10)
+        if i!=1:
+            textlabels[i].pack(side=LEFT, padx=10, pady=10)
         #COMBOBOX
         comboinputs.append(StringVar())
         comboinputs[i].set(comboplaceholder[i])
-        selections.append([])
-        comboboxes.append(Combobox(rows[i], textvariable=comboinputs[i], values=selections[i]))
-        comboboxes[i].pack(side=LEFT, expand=YES, fill=X, padx=10, pady=10)
+        if i!=0:
+            selections.append([])
+        else:
+            selections.append(["RDS_modern.iso"])
+
+        if i!=1:
+            comboboxes.append(Combobox(rows[i], textvariable=comboinputs[i], values=selections[i]))
+        else:#File Extension:
+            comboboxes.append(Text(rows[i], height=1))
+        
+        if i!=1:#File Extension fix
+            comboboxes[i].pack(side=LEFT, expand=YES, fill=X, padx=10, pady=10)
+
+    #File Extension not at top:
+    rows[1].pack(side=TOP, fill=X, padx=5, pady=35)
+    #DESCR
+    textlabels[1].pack(side=LEFT, padx=10, pady=10)
+    #COMBOBOX
+    comboboxes[1].pack(side=LEFT, expand=YES, fill=X, padx=10, pady=10)
+
+
+
+
+
 
     # ROW 0
 
@@ -891,6 +938,14 @@ if __name__ == '__main__':
     finalbutton2.pack(side=RIGHT, padx=10, pady=10)
 
     #Status Text Label
+    tipprow = Frame(root)
+    tipprow.pack(side=TOP, fill=X, padx=5, pady=5)
+    tipptext = StringVar()
+    tipptext.set("Hinweis: Nur exakte Übereinstimmungen gelten - am besten immer einen Vorschlag übernehmen.\nTipp: Mehrfachauswahlen sind mit Kommas getrennt möglich.\nTipp: Keine Eingabe oder ein Komma am Ende = Wildcard")
+    tipplabel = Label(tipprow, textvariable=tipptext, font=("Helvetica", 12), anchor=W, justify=LEFT, width=labelwidth*5)
+    tipplabel.pack(side=LEFT, padx=10, pady=10)
+
+    #Status Text Label
     statusrow = Frame(root)
     statusrow.pack(side=TOP, fill=X, padx=5, pady=5)
     statustext = StringVar()
@@ -905,7 +960,7 @@ if __name__ == '__main__':
 
     #GUI Window Title and Size:
     root.wm_title("NSRL Hash Selector")
-    root.geometry(str(int(800))+"x"+str(int(800)))
+    root.geometry(str(int(950))+"x"+str(int(700)))
 
     #Make the left-Labels the same size:
     root.update()
@@ -916,8 +971,11 @@ if __name__ == '__main__':
     prevcomboinputs=["" for each in comboinputs]
     print("entering mainloop")
     while 1:
-        root.update_idletasks()
-        root.update()    
+        try:
+            root.update_idletasks()
+            root.update()    
+        except:#gives an error when window is closed - cant be updated anymore ;) logically ._.
+            sys.exit()
         if KL_exists:
             #only update dropdowns if the input changed, takes a long time to update
             if prevcomboinputs != [each.get() for each in comboinputs]:
