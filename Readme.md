@@ -23,7 +23,7 @@ Now you can type in what you want to filter for:
 
 Click the left Button to export to a .txt file without a header ("md5") or the right Button to export with a header ("md5").
 
-### Third Program uses:
+### This Program uses:
 
 [pycdlib](https://github.com/clalancette/pycdlib)
 
