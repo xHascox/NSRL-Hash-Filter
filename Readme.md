@@ -27,6 +27,6 @@ Click the left Button to export to a .txt file without a header ("md5") or the r
 
 [pycdlib](https://github.com/clalancette/pycdlib)
 
-### Tested Python Verison:
+### Tested Python Version:
 
 * 3.5
