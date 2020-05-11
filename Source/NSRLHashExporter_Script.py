@@ -1,5 +1,3 @@
-#Code: Marco (Cyber-RS)
-
 #python -m pip install pycdlib
 #https://github.com/clalancette/pycdlib
 #For extracting iso files
@@ -158,8 +156,7 @@ def handle_iso():
     root.update_idletasks()
     root.update()
     global tmpfolder
-    tmpfolder='/'+str(int(time.time()))
-
+    tmpfolder=str(int(time.time()))
     #Prompt user for Iso NSRL File
     #global isofile
 
