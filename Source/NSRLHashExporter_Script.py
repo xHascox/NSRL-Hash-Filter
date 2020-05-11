@@ -1,5 +1,3 @@
-#Code: Marco (Cyber-RS)
-
 #python -m pip install pycdlib
 #https://github.com/clalancette/pycdlib
 #For extracting iso files
